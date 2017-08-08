@@ -16,6 +16,16 @@ public class GameControler : MonoBehaviour {
 			Debug.Log ("Error loading the No Material");
 			return;
 		}
+		Material llMaterial= Resources.Load ("LLMat", typeof(Material)) as Material;
+		if (llMaterial == null) {
+			Debug.Log ("Error loading the Low Light Material");
+			return;
+		}
+		if (llMaterial.shader == null) {
+			Debug.Log ("Error loading the Low Light Material -> no shader on it");
+			return;			
+		}
+//		Shader llShader=llMaterial.shader;
 
 //		Debug.Log(GetComponentsInChildren(Renderer, true).Length.ToString());
 		GameObject[] goArray = FindObjectsOfType(typeof(GameObject)) as GameObject[];
@@ -26,18 +36,29 @@ public class GameControler : MonoBehaviour {
 			Renderer[] renderers = obj.GetComponentsInChildren<Renderer> ();
 			foreach (var r in renderers) {
 				GameObject gO = r.gameObject;
-//				Debug.Log ("Processing go:" + gO.name);
 				int i;
 				for (i = 0; i < r.materials.Length; ++i) {
 					string x = r.materials[i].name;
 					x = x.Substring (0, x.LastIndexOf (" (Instance"));
 					Material newMat = Resources.Load ("Shader_" + x, typeof(Material)) as Material;
-					if (string.Compare (obj.name, "Guard") == 0) {
-						Debug.Log ("Game Object:" + gO.name);
-						Debug.Log ("Game Material:" + x);
-						if (newMat != null)
-							Debug.Log ("New Material:" + newMat.name);
+					Material newLLMat = new Material (Shader.Find("Custom/LowLight"));
+					if (newLLMat == null) {
+						Debug.Log ("On go/matnum, could not find shader to create new material:" + gO.name + ":" + i.ToString ());
+						return;
 					}
+					newLLMat.mainTexture = r.materials [i].mainTexture;
+					newLLMat.SetColor ("_HiColor", llMaterial.GetColor("_HiColor"));
+					newLLMat.SetColor ("_MidColor", llMaterial.GetColor("_MidColor"));
+					newLLMat.SetColor ("_LowColor", llMaterial.GetColor("_LowColor"));
+					newLLMat.SetFloat ("_MidValue", llMaterial.GetFloat("_MidValue"));
+
+
+//					if (string.Compare (obj.name, "Guard") == 0) {
+//						Debug.Log ("Game Object:" + gO.name);
+//						Debug.Log ("Game Material:" + x);
+//						if (newMat != null)
+//							Debug.Log ("New Material:" + newMat.name);
+//					}
 					if (newMat == null)
 						newMat = noMaterial;
 					else {
@@ -45,14 +66,14 @@ public class GameControler : MonoBehaviour {
 							if (newMat.mainTexture == null)
 								newMat.mainTexture = r.materials [i].mainTexture;
 					}
-					ChgList.Add (new OriginalMats (gO, i, r.materials[i], newMat));
+					ChgList.Add (new OriginalMats (gO, i, r.materials[i], newMat, newLLMat));
 				}
 			}
 		}
 		Debug.Log ("If no errors so far great");
-		foreach (var cL in ChgList) {
-			Debug.Log (string.Concat (cL.index,":",  cL.gObj.name,":", cL.subMat,":", cL.mats[0].ToString (),":", cL.mats[1].ToString ()));
-		}
+//		foreach (var cL in ChgList) {
+//			Debug.Log (string.Concat (cL.index,":",  cL.gObj.name,":", cL.subMat,":", cL.mats[0].ToString (),":", cL.mats[1].ToString ()));
+//		}
 	}
 	void Update () {
 		if (Input.anyKeyDown) {
