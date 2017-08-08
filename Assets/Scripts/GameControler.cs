@@ -11,7 +11,7 @@ public class GameControler : MonoBehaviour {
 		Debug.Log ("Starting");
 		ChgList= new List<OriginalMats>();
 
-		Material noMaterial= Resources.Load ("NoneMat", typeof(Material)) as Material;
+		Material noMaterial= Resources.Load ("IRtoNoneMat", typeof(Material)) as Material;
 		if (noMaterial == null) {
 			Debug.Log ("Error loading the No Material");
 			return;
@@ -32,7 +32,7 @@ public class GameControler : MonoBehaviour {
 					string x = r.materials[i].name;
 					x = x.Substring (0, x.LastIndexOf (" (Instance"));
 					Material newMat = Resources.Load ("Shader_" + x, typeof(Material)) as Material;
-					if (string.Compare (obj.name, "HallwayStraightShort") == 0) {
+					if (string.Compare (obj.name, "Guard") == 0) {
 						Debug.Log ("Game Object:" + gO.name);
 						Debug.Log ("Game Material:" + x);
 						if (newMat != null)
@@ -40,6 +40,11 @@ public class GameControler : MonoBehaviour {
 					}
 					if (newMat == null)
 						newMat = noMaterial;
+					else {
+						if (r.materials [i].mainTexture != null)
+							if (newMat.mainTexture == null)
+								newMat.mainTexture = r.materials [i].mainTexture;
+					}
 					ChgList.Add (new OriginalMats (gO, i, r.materials[i], newMat));
 				}
 			}
