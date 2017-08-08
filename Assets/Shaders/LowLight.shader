@@ -59,9 +59,9 @@
 				fixed4 col = tex2D(_MainTex, i.uv) * (i.diff*0.5+0.5);
 				float mag=length(col.rgb);
 
-				float aux=smoothstep(0, _MidValue, mag);
+				float aux=clamp(0, _MidValue, mag);
 				half4 auxCol=_MidColor*aux+_LowColor*(1-aux);
-				aux=smoothstep(_MidValue, 0.95, mag);
+				aux=clamp(_MidValue, 0.95, mag);
 				return auxCol*(1-aux)+_HiColor*aux;
 			}
 			ENDCG

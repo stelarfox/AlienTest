@@ -13,7 +13,7 @@ public class OriginalMats : IComparable<OriginalMats> {
 
 
 
-	public OriginalMats(GameObject newGO, int newSM, Material newNormal, Material newIR, Material newLL, int newIndex = -1)
+	public OriginalMats(GameObject newGO, int newSM, Material newNormal, Material newIR, Material newLL, Material newEnh, int newIndex = -1)
 	{
 		if (newIndex == -1)
 			newIndex = ++num;
@@ -29,7 +29,7 @@ public class OriginalMats : IComparable<OriginalMats> {
 			mats [0] = newNormal;
 			mats [1] = newIR;
 			mats [2] = newLL;
-			mats [3] = newNormal;
+			mats [3] = newEnh;
 			mats [4] = newNormal;
 		} else {
 			isParticle = true;

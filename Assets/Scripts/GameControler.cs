@@ -25,6 +25,15 @@ public class GameControler : MonoBehaviour {
 			Debug.Log ("Error loading the Low Light Material -> no shader on it");
 			return;			
 		}
+		Material EnhMaterial= Resources.Load ("EnhMat", typeof(Material)) as Material;
+		if (EnhMaterial == null) {
+			Debug.Log ("Error loading the Enhanced Material");
+			return;
+		}
+		if (EnhMaterial.shader == null) {
+			Debug.Log ("Error loading the Enhanced Material -> no shader on it");
+			return;			
+		}
 //		Shader llShader=llMaterial.shader;
 
 //		Debug.Log(GetComponentsInChildren(Renderer, true).Length.ToString());
@@ -40,17 +49,41 @@ public class GameControler : MonoBehaviour {
 				for (i = 0; i < r.materials.Length; ++i) {
 					string x = r.materials[i].name;
 					x = x.Substring (0, x.LastIndexOf (" (Instance"));
-					Material newMat = Resources.Load ("Shader_" + x, typeof(Material)) as Material;
-					Material newLLMat = new Material (Shader.Find("Custom/LowLight"));
+					Material newMat = Resources.Load ("IR_" + x, typeof(Material)) as Material;
+					Material newLLMat = Resources.Load ("LL_" + x, typeof(Material)) as Material;
 					if (newLLMat == null) {
-						Debug.Log ("On go/matnum, could not find shader to create new material:" + gO.name + ":" + i.ToString ());
-						return;
+						newLLMat= new Material (Shader.Find ("Custom/LowLight"));
+						if (newLLMat == null) {
+							Debug.Log ("On go/matnum, could not find shader to create new LL material:" + gO.name + ":" + i.ToString ());
+							return;
+						}
+						newLLMat.mainTexture = r.materials [i].mainTexture;
+						newLLMat.SetColor ("_HiColor", llMaterial.GetColor ("_HiColor"));
+						newLLMat.SetColor ("_MidColor", llMaterial.GetColor ("_MidColor"));
+						newLLMat.SetColor ("_LowColor", llMaterial.GetColor ("_LowColor"));
+						newLLMat.SetFloat ("_MidValue", llMaterial.GetFloat ("_MidValue"));
+					} else {
+						if (newLLMat.mainTexture == null)
+							newLLMat.mainTexture = r.materials [i].mainTexture; // if the r.material is also null then not important really
 					}
-					newLLMat.mainTexture = r.materials [i].mainTexture;
-					newLLMat.SetColor ("_HiColor", llMaterial.GetColor("_HiColor"));
-					newLLMat.SetColor ("_MidColor", llMaterial.GetColor("_MidColor"));
-					newLLMat.SetColor ("_LowColor", llMaterial.GetColor("_LowColor"));
-					newLLMat.SetFloat ("_MidValue", llMaterial.GetFloat("_MidValue"));
+
+					Material newEnhMat = Resources.Load ("Enh_" + x, typeof(Material)) as Material;
+					if (newEnhMat == null) {
+						newEnhMat=new Material (Shader.Find ("Custom/Enhanced"));
+						if (newEnhMat == null) {
+							Debug.Log ("On go/matnum, could not find shader to create new material:" + gO.name + ":" + i.ToString ());
+							return;
+						}
+						newEnhMat.mainTexture = r.materials [i].mainTexture;
+						newEnhMat.SetColor ("_HiColor", newEnhMat.GetColor ("_HiColor"));
+						newEnhMat.SetColor ("_LowColor", newEnhMat.GetColor ("_LowColor"));
+						newEnhMat.SetFloat ("_TotOff", newEnhMat.GetFloat ("_TotOff"));
+						newEnhMat.SetFloat ("_PartOff", newEnhMat.GetFloat ("_PartOff"));
+					} else {
+						if (newEnhMat.mainTexture == null)
+							newEnhMat.mainTexture = r.materials [i].mainTexture; // if the r.material is also null then not important really
+					}
+
 
 
 //					if (string.Compare (obj.name, "Guard") == 0) {
@@ -66,7 +99,7 @@ public class GameControler : MonoBehaviour {
 							if (newMat.mainTexture == null)
 								newMat.mainTexture = r.materials [i].mainTexture;
 					}
-					ChgList.Add (new OriginalMats (gO, i, r.materials[i], newMat, newLLMat));
+					ChgList.Add (new OriginalMats (gO, i, r.materials[i], newMat, newLLMat,newEnhMat));
 				}
 			}
 		}
